@@ -155,6 +155,7 @@
 					$scope.async = ['Item 1', 'Item 2', 'Item 3'];
 					$scope.asyncOptions = {
 						onSearch: function (term) {
+							// No search term: restore original items
 							if (!term) {
 								$scope.async = ['Item 1', 'Item 2', 'Item 3'];
 								return;
@@ -163,7 +164,7 @@
 							// Simulate asynchronous call
 							$timeout(function () {
 								var result = [];
-								for (var i = 0; i < 3; i++)
+								for (var i = 1; i <= 3; i++)
 								{
 									result.push(term + ' ' + i);
 								}
