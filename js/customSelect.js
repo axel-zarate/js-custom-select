@@ -116,6 +116,12 @@
 					focusedIndex = -1;
 					inputElement.focus();
 				});
+				
+				anchorElement.on('keypress', function (event) {
+					if (!(event.altKey || event.ctrlKey)) {
+						anchorElement.click();
+					}
+				});
 
 				// Event handler for Esc, Enter, Tab and Down keys on input search
 				inputElement.on('keydown', function (event) {
