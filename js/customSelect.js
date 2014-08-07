@@ -48,7 +48,8 @@
 					values = match[7],
 					valuesFn = $parse(values);
 
-				var searchModel = match[2] ? (match[2]).replace(new RegExp('^' + valueName + '\\.'), 'search.') : 'search',
+				var searchProperty = generateName(5),
+					searchModel = match[2] ? (match[2]).replace(new RegExp('^' + valueName + '\\.'), searchProperty + '.') : searchProperty,
 					remoteSearch = typeof options.onSearch === 'function',
 					timeoutHandle,
 					lastSearch = '',
@@ -70,12 +71,12 @@
 							'<input class="' + attrs.selectClass + '" type="text" autocomplete="off" ng-model="' + searchModel + '" />' +
 						'</div>' +
 						'<ul role="menu">' +
-							'<li role="presentation" ng-repeat="' + valueName + ' in ' + values + (remoteSearch ? '' : ' | filter: search') + '">' +
+							'<li role="presentation" ng-repeat="' + valueName + ' in ' + values + (remoteSearch ? '' : ' | filter: ' + searchProperty) + '">' +
 								'<a role="menuitem" tabindex="-1" href ng-click="select(' + valueName + ')">' +
 									itemTemplate +
 								'</a>' +
 							'</li>' +
-							'<li ng-hide="(' + values + (remoteSearch ? '' : ' | filter: search') + ').length" class="empty-result" stop-propagation="click">' +
+							'<li ng-hide="(' + values + (remoteSearch ? '' : ' | filter: ' + searchProperty ) + ').length" class="empty-result" stop-propagation="click">' +
 								'<em class="muted">' +
 									'<span ng-hide="' + searchModel + '">{{emptyListText}}</span>' +
 									'<span class="word-break" ng-show="' + searchModel + '">{{emptySearchResultText | format:' + searchModel + '}}</span>' +
@@ -110,7 +111,7 @@
 					if (!remoteSearch) {
 						childScope.$apply(function () {
 							lastSearch = '';
-							childScope.search = getInitialSearchModel();
+							childScope[searchProperty] = getInitialSearchModel();
 						});
 					}
 					focusedIndex = -1;
@@ -247,7 +248,7 @@
 						childScope.displayText = displayFn(scope, locals) || options.displayText;
 						controller.$setViewValue(value);
 
-						childScope.search = getInitialSearchModel();
+						childScope[searchProperty] = getInitialSearchModel();
 						anchorElement.focus();
 					};
 					childScope.add = function () {
@@ -276,6 +277,17 @@
 					}
 
 					setDisplayText();
+				}
+				
+				function generateName(length) {
+					var text = "";
+					var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+					for( var i = 0; i < length; i++ ) {
+						text += possible.charAt(Math.floor(Math.random() * possible.length));
+					}
+					
+					return text;
 				}
 			}
 		};
