@@ -20,7 +20,7 @@
 	
 	module.directive('customSelect', ['$parse', '$compile', '$timeout', 'customSelectDefaults', function ($parse, $compile, $timeout, baseOptions) {
 		var NG_OPTIONS_REGEXP = /^\s*(.*?)(?:\s+as\s+(.*?))?(?:\s+group\s+by\s+(.*))?\s+for\s+(?:([\$\w][\$\w]*)|(?:\(\s*([\$\w][\$\w]*)\s*,\s*([\$\w][\$\w]*)\s*\)))\s+in\s+(.*?)(?:\s+track\s+by\s+(.*?))?$/;
-
+		
 		return {
 			restrict: 'A',
 			require: 'ngModel',
@@ -39,44 +39,42 @@
 
 				elem.addClass('dropdown custom-select');
 
-				var options = getOptions(),
-					focusedIndex = -1,
-
-					displayFn = $parse(match[2] || match[1]),
+				// Ng-Options break down
+				var displayFn = $parse(match[2] || match[1]),
 					valueName = match[4] || match[6],
 					valueFn = $parse(match[2] ? match[1] : valueName),
 					values = match[7],
 					valuesFn = $parse(values);
 
-				var searchProperty = generateName(5),
-					searchModel = match[2] ? (match[2]).replace(new RegExp('^' + valueName + '\\.'), searchProperty + '.') : searchProperty,
+				var options = getOptions(),
+					searchModel = match[2] ? (match[2]).replace(new RegExp('^' + valueName + '\\.'), 'search.') : 'search',
 					remoteSearch = typeof options.onSearch === 'function',
 					timeoutHandle,
 					lastSearch = '',
+					focusedIndex = -1,
 					getInitialSearchModel = function () {
 						return match[2] ? {} : '';
 					};
 
-				var innerHtml = elem.html().trim(),
-					itemTemplate = innerHtml || '{{' + (match[2] || match[1]) + '}}',
+				var itemTemplate = elem.html().trim() || '{{' + (match[2] || match[1]) + '}}',
 
-					selectTemplate = '<select class="hide" ng-options="' + attrs.ngOptions + '" ng-model="' + attrs.ngModel + '" ' + (attrs.ngChange ? 'ng-change="' + attrs.ngChange + '"' : '') + '></select>',
+					selectTemplate = '<select class="hide" ng-options="' + attrs.ngOptions + '" ' + (attrs.ngChange ? 'ng-change="' + attrs.ngChange + '"' : '') + '></select>',
 					dropdownTemplate =
 					'<a class="dropdown-toggle" data-toggle="dropdown" href ng-class="{ disabled: disabled }">' +
 						'<span>{{displayText}}</span>' +
-						'<div><b></b></div>' +
+						'<b></b>' +
 					'</a>' +
 					'<div class="dropdown-menu">' +
 						'<div stop-propagation="click" class="custom-select-search">' +
 							'<input class="' + attrs.selectClass + '" type="text" autocomplete="off" ng-model="' + searchModel + '" />' +
 						'</div>' +
 						'<ul role="menu">' +
-							'<li role="presentation" ng-repeat="' + valueName + ' in ' + values + (remoteSearch ? '' : ' | filter: ' + searchProperty) + '">' +
+							'<li role="presentation" ng-repeat="' + valueName + ' in ' + values + (remoteSearch ? '' : ' | filter: search') + '">' +
 								'<a role="menuitem" tabindex="-1" href ng-click="select(' + valueName + ')">' +
 									itemTemplate +
 								'</a>' +
 							'</li>' +
-							'<li ng-hide="(' + values + (remoteSearch ? '' : ' | filter: ' + searchProperty ) + ').length" class="empty-result" stop-propagation="click">' +
+							'<li ng-hide="(' + values + (remoteSearch ? '' : ' | filter: search') + ').length" class="empty-result" stop-propagation="click">' +
 								'<em class="muted">' +
 									'<span ng-hide="' + searchModel + '">{{emptyListText}}</span>' +
 									'<span class="word-break" ng-show="' + searchModel + '">{{emptySearchResultText | format:' + searchModel + '}}</span>' +
@@ -91,33 +89,36 @@
 
 				// Clear element contents
 				elem.empty();
-				// Create hidden select element and compile it
-				var selectElement = angular.element(selectTemplate);
-				$compile(selectElement)(scope);
-				elem.append(selectElement);
 
-				// Create dropdown element and compile it
+				// Create hidden select element
+				var selectElement = angular.element(selectTemplate);
+
+				// Create dropdown element
 				var dropdownElement = angular.element(dropdownTemplate),
 					anchorElement = dropdownElement.eq(0).dropdown(),
 					inputElement = dropdownElement.eq(1).find(':text'),
 					ulElement = dropdownElement.eq(1).find('ul');
 
+				// Create child scope for input and dropdown
+				var childScope = scope.$new(true);
+				configChildScope();
+
+				// Click event handler to set initial values and focus when the dropdown is shown
 				anchorElement.on('click', function (event) {
 					if (childScope.disabled) {
-						//event.preventDefault();
-						//event.stopPropagation();
 						return;
 					}
 					if (!remoteSearch) {
 						childScope.$apply(function () {
 							lastSearch = '';
-							childScope[searchProperty] = getInitialSearchModel();
+							childScope.search = getInitialSearchModel();
 						});
 					}
 					focusedIndex = -1;
 					inputElement.focus();
 				});
-				
+
+				// Event handler for key press (when the user types a character while focus is on the anchor element)
 				anchorElement.on('keypress', function (event) {
 					if (!(event.altKey || event.ctrlKey)) {
 						anchorElement.click();
@@ -168,9 +169,9 @@
 					}
 				});
 
-				// Create child scope for input and dropdown
-				var childScope = scope.$new();
-				configChildScope();
+				// Compile select element
+				$compile(selectElement)(childScope);
+				elem.append(selectElement);
 
 				// Compile template against child scope
 				$compile(dropdownElement)(childScope);
@@ -184,10 +185,15 @@
 				};
 
 				// Watch for changes in the default display text
-				scope.$watch(getDisplayText, setDisplayText);
+				childScope.$watch(getDisplayText, setDisplayText);
 
-				scope.$watch(attrs.disabled, function (value) {
+				childScope.$watch(function () { return elem.attr('disabled'); }, function (value) {
 					childScope.disabled = value;
+				});
+
+				// Watch for changes on the original values and update the isolated child scope accordingly
+				scope.$watch(values, function (value) {
+					childScope[values] = value;
 				});
 
 				function setDisplayText() {
@@ -197,9 +203,9 @@
 						key = selectElement.val();
 
 					if (key && key !== '?') {
-						collection = valuesFn(scope) || [];
+						collection = valuesFn(childScope) || [];
 						locals[valueName] = collection[key];
-						text = displayFn(scope, locals);
+						text = displayFn(childScope, locals);
 					}
 
 					childScope.displayText = text || options.displayText;
@@ -243,12 +249,12 @@
 					childScope.select = function (item) {
 						var locals = {};
 						locals[valueName] = item;
-						var value = valueFn(scope, locals);
+						var value = valueFn(childScope, locals);
 						//setDisplayText(displayFn(scope, locals));
-						childScope.displayText = displayFn(scope, locals) || options.displayText;
+						childScope.displayText = displayFn(childScope, locals) || options.displayText;
 						controller.$setViewValue(value);
 
-						childScope[searchProperty] = getInitialSearchModel();
+						childScope.search = getInitialSearchModel();
 						anchorElement.focus();
 
 						typeof options.onSelect === "function" && options.onSelect(item);
@@ -279,17 +285,6 @@
 					}
 
 					setDisplayText();
-				}
-				
-				function generateName(length) {
-					var text = "";
-					var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-
-					for( var i = 0; i < length; i++ ) {
-						text += possible.charAt(Math.floor(Math.random() * possible.length));
-					}
-					
-					return text;
 				}
 			}
 		};

@@ -26,22 +26,35 @@
 			
 			<h2>Simple objects</h2>
 			<p>Selected fruit: {{ fruit }}</p>
-			<div custom-select ng-model="fruit" ng-options="f for f in fruits">
-			</div>
+			<div custom-select ng-model="fruit" ng-options="f for f in fruits"></div>
 			
 			<h2>Complex objects</h2>
 			<p>Selected state: {{ state }}</p>
-			<div custom-select ng-model="state" ng-options="s.id as s.name for s in states">
-			</div>
+			<div custom-select ng-model="state" ng-options="s.id as s.name for s in states"></div>
 			
 			<h2>Custom options</h2>
-			<h3>Add new items</h3>
-			<div custom-select="growableOptions" ng-model="custom1" ng-options="g for g in growable">
+			<h3>Change the appearance</h3>
+			
+			<div class="row">
+				<div class="span3">
+					<div custom-select="customOptions" ng-model="test" ng-options="g for g in custom" ng-disabled="!isCustomEnabled"></div>
+				</div>
+				<div class="span3">
+					<label>Change initial display text</label>
+					<input type="text" ng-model="customOptions.displayText" />
+					<label class="checkbox">
+						<input type="checkbox" ng-model="isCustomEnabled" />
+						Is enabled
+					</label>
+				</div>
 			</div>
 			
-			<h3>Asynchronous (server-side) filtering</h3>
-			<div custom-select="asyncOptions" ng-model="custom2" ng-options="a for a in async">
-			</div>
+			
+			<h3>Add new items</h3>
+			<div custom-select="growableOptions" ng-model="custom1" ng-options="g for g in growable"></div>
+			
+			<h3>Custom filtering</h3>
+			<div custom-select="asyncOptions" ng-model="custom2" ng-options="a for a in async"></div>
 			
 			<h3>Custom item template</h3>
 			<p>Selected person: {{ person | json }}</p>
@@ -144,6 +157,14 @@
 						{ id: 'WY', name: 'Wyoming' }
 					];
 					
+					$scope.isCustomEnabled = true;
+					$scope.custom = ['Item 1', 'Item 2', 'Item 3'];
+					$scope.customOptions = {
+						displayText: 'This text is modifyable',
+						emptyListText: 'Oops! The list is empty',
+						emptySearchResultText: 'Sorry, couldn\'t find "$0"'
+					};
+					
 					$scope.growable = ['Item 1', 'Item 2', 'Item 3'];
 					$scope.growableOptions = {
 						displayText: 'Select or add a new item...',
@@ -162,7 +183,7 @@
 								return;
 							}
 							
-							// Simulate asynchronous call
+							// Simulate asynchronous ajax call
 							$timeout(function () {
 								var result = [];
 								for (var i = 1; i <= 3; i++)
