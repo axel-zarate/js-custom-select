@@ -168,7 +168,7 @@
 				});
 
 				// Create child scope for input and dropdown
-				var childScope = scope.$new(true);
+				var childScope = scope.$new();
 				configChildScope();
 
 				// Compile template against child scope
