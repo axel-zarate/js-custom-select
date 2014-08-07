@@ -250,6 +250,8 @@
 
 						childScope[searchProperty] = getInitialSearchModel();
 						anchorElement.focus();
+
+						typeof options.onSelect === "function" && options.onSelect(item);
 					};
 					childScope.add = function () {
 						options.onAdd(childScope.select);
