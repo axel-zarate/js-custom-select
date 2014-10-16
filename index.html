@@ -27,7 +27,7 @@
 			<h2>Simple objects</h2>
 			<p>Selected fruit: {{ fruit }}</p>
 			<div custom-select ng-model="fruit" ng-options="f for f in fruits"></div>
-			
+			<button class="btn" ng-click="setToMango()">Set to mango</button>
 			<h2>Complex objects</h2>
 			<p>Selected state: {{ state }}</p>
 			<div custom-select ng-model="state" ng-options="s.id as s.name for s in states"></div>
@@ -48,7 +48,6 @@
 					</label>
 				</div>
 			</div>
-			
 			
 			<h3>Add new items</h3>
 			<div custom-select="growableOptions" ng-model="custom1" ng-options="g for g in growable"></div>
@@ -91,10 +90,15 @@
 		<script>
 			(function () {
 				var app = angular.module('Demo', ['ui.filters', 'AxelSoft']);
-				
+
 				app.controller('DemoController', ['$scope', '$timeout', function ($scope, $timeout) {
+
 					$scope.fruits = ['apple', 'orange', 'mango', 'grapefruit', 'banana', 'melon'];
-					
+					$scope.setToMango = function () {
+						$scope.fruit = 'mango';
+					};
+
+					$scope.state = 'AL';
 					$scope.states = [
 						{ id: 'AL', name: 'Alabama' },
 						{ id: 'AK', name: 'Alaska' },
@@ -156,7 +160,7 @@
 						{ id: 'WI', name: 'Wisconsin' },
 						{ id: 'WY', name: 'Wyoming' }
 					];
-					
+
 					$scope.isCustomEnabled = true;
 					$scope.custom = ['Item 1', 'Item 2', 'Item 3'];
 					$scope.customOptions = {
@@ -164,7 +168,7 @@
 						emptyListText: 'Oops! The list is empty',
 						emptySearchResultText: 'Sorry, couldn\'t find "$0"'
 					};
-					
+
 					$scope.growable = ['Item 1', 'Item 2', 'Item 3'];
 					$scope.growableOptions = {
 						displayText: 'Select or add a new item...',
@@ -173,7 +177,7 @@
 							$scope.growable.push('Item ' + ($scope.growable.length + 1));
 						}
 					};
-					
+
 					$scope.async = ['Item 1', 'Item 2', 'Item 3'];
 					$scope.asyncOptions = {
 						onSearch: function (term) {
@@ -194,7 +198,7 @@
 							}, 300);
 						}
 					};
-					
+
 					$scope.people = [
 						{ name: 'John Doe', phone: '555-123-456', picture: 'http://www.saintsfc.co.uk/images/common/bg_player_profile_default_big.png' },
 						{ name: 'Axel Zarate', phone: '888-777-6666', picture: 'https://avatars0.githubusercontent.com/u/4431445?s=60' },

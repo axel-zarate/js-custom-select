@@ -58,7 +58,7 @@
 
 				var itemTemplate = elem.html().trim() || '{{' + (match[2] || match[1]) + '}}',
 
-					selectTemplate = '<select class="hide" ng-options="' + attrs.ngOptions + '" ' + (attrs.ngChange ? 'ng-change="' + attrs.ngChange + '"' : '') + '></select>',
+					selectTemplate = '<select class="hide" ng-options="' + attrs.ngOptions + '" ng-model="' + attrs.ngModel + '" ' + (attrs.ngChange ? 'ng-change="' + attrs.ngChange + '"' : '') + '></select>',
 					dropdownTemplate =
 					'<a class="dropdown-toggle" data-toggle="dropdown" href ng-class="{ disabled: disabled }">' +
 						'<span>{{displayText}}</span>' +
@@ -170,7 +170,7 @@
 				});
 
 				// Compile select element
-				$compile(selectElement)(childScope);
+				$compile(selectElement)(scope);
 				elem.append(selectElement);
 
 				// Compile template against child scope
