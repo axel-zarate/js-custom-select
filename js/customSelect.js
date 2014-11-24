@@ -193,7 +193,8 @@
 
 				// Watch for changes on the original values and update the isolated child scope accordingly
 				scope.$watch(values, function (value) {
-					childScope[values] = value;
+					// childScope[values] = value;
+					valuesFn.assign(childScope, value);
 				});
 
 				function setDisplayText() {
