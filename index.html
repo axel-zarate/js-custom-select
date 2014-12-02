@@ -27,10 +27,11 @@
 			<h2>Simple objects</h2>
 			<p>Selected fruit: {{ fruit }}</p>
 			<div custom-select ng-model="fruit" ng-options="f for f in fruits"></div>
-			<button class="btn" ng-click="setToMango()">Set to mango</button>
+			<button type="button" class="btn" ng-click="setToMango()">Set to mango</button>
 			<h2>Complex objects</h2>
 			<p>Selected state: {{ state }}</p>
 			<div custom-select ng-model="state" ng-options="s.id as s.name for s in states"></div>
+			<button type="button" class="btn" ng-click="reset()">Reset</button>
 			
 			<h2>Custom options</h2>
 			<h3>Change the appearance</h3>
@@ -160,6 +161,9 @@
 						{ id: 'WI', name: 'Wisconsin' },
 						{ id: 'WY', name: 'Wyoming' }
 					];
+          $scope.reset = function () {
+            $scope.state = undefined;
+          };
 
 					$scope.isCustomEnabled = true;
 					$scope.custom = ['Item 1', 'Item 2', 'Item 3'];
