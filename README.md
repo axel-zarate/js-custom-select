@@ -95,3 +95,14 @@ $scope.people = [
 	{ name: 'Walter White', phone: '303-111-2222', picture: 'http://upstreamideas.org/wp-content/uploads/2013/10/ww.jpg' }
 ];
 ```
+
+## Options
+Name | Type | Details
+---- | ---- | -------
+displayText | String | Placeholder text to display in the select box when there is no item is selected. Default: `'Select...'`.
+emptyListText | String | Message to display in the dropdown when there source array is empty. Default: `'There are no items to display'`.
+emptySearchResultText | String | Message to display in the dropdown when the search filter yields zero results (the difference with `emptyListText` is that there may be items in the data source, but none of them match the search string). Default: `'No results match "$0"'`.
+addText | String | Text to display on the add button; additionally, `onAdd` callback function must be supplied. Default: `'Add'`.
+onAdd | Function | A callback function to execute when the Add button is pressed. Default: `undefined`.
+searchDelay | Integer | Time in milliseconds to wait until the filtering is performed (only used in remote search mode). Default: `1000` (one second).
+onSearch | Function | User define search function (usually asynchronous), useful for server-side filtering. The search text is passed as an argument, and the function is expected to replace the source array with new values. Default: `undefined`.
