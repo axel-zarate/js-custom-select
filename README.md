@@ -106,3 +106,11 @@ addText | String | Text to display on the add button; additionally, `onAdd` call
 onAdd | Function | A callback function to execute when the Add button is pressed. Default: `undefined`.
 searchDelay | Integer | Time in milliseconds to wait until the filtering is performed (only used in remote search mode). Default: `1000` (one second).
 onSearch | Function | User define search function (usually asynchronous), useful for server-side filtering. The search text is passed as an argument, and the function is expected to replace the source array with new values. Default: `undefined`.
+onSelect | Function | Callback function called when the user selects an item from the dropdown.
+
+You can also provide an `ng-change` attribute to the custom select element, which will be wired to the inner `select` element.
+
+## Dependencies
+* jQuery
+* AngularJS
+* Twitter Bootstrap (2.x or 3.x)
