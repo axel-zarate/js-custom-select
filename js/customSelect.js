@@ -42,6 +42,7 @@
 				// Ng-Options break down
 				var displayFn = $parse(match[2] || match[1]),
 					valueName = match[4] || match[6],
+					groupByFn = $parse(match[3] || ''),
 					valueFn = $parse(match[2] ? match[1] : valueName),
 					values = match[7],
 					valuesFn = $parse(values);
@@ -197,6 +198,11 @@
 					valuesFn.assign(childScope, value);
 				});
 
+				// Support for autofocus
+				if ('autofocus' in attrs) {
+					anchorElement.focus();
+				}
+				
 				function setDisplayText() {
 					var collection,
 						locals = {},
