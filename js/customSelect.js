@@ -25,16 +25,17 @@
 			restrict: 'A',
 			require: 'ngModel',
 			link: function (scope, elem, attrs, controller) {
-				if (!attrs.ngOptions) {
-					throw new Error('Expected ng-options attribute.');
+				var ngOptions = attrs.ngOptions || attrs.csOptions;
+				if (!ngOptions) {
+					throw new Error('Expected ng-options or cs-options attribute.');
 				}
 
-				var match = attrs.ngOptions.match(NG_OPTIONS_REGEXP);
+				var match = ngOptions.match(NG_OPTIONS_REGEXP);
 
 				if (!match) {
 					throw new Error("Expected expression in form of " +
 						"'_select_ (as _label_)? for (_key_,)?_value_ in _collection_'" +
-						" but got '" + attrs.ngOptions + "'.");
+						" but got '" + ngOptions + "'.");
 				}
 
 				elem.addClass('dropdown custom-select');
@@ -59,7 +60,7 @@
 
 				var itemTemplate = elem.html().trim() || '{{' + (match[2] || match[1]) + '}}',
 
-					selectTemplate = '<select class="hide" ng-options="' + attrs.ngOptions + '" ng-model="' + attrs.ngModel + '" ' + (attrs.ngChange ? 'ng-change="' + attrs.ngChange + '"' : '') + '></select>',
+					selectTemplate = '<select class="hide" ng-options="' + ngOptions + '" ng-model="' + attrs.ngModel + '" ' + (attrs.ngChange ? 'ng-change="' + attrs.ngChange + '"' : '') + '></select>',
 					dropdownTemplate =
 					'<a class="dropdown-toggle" data-toggle="dropdown" href ng-class="{ disabled: disabled }">' +
 						'<span>{{displayText}}</span>' +
