@@ -8,6 +8,8 @@ Custom Select is inspired in the AngularJS `select` directive and adds extra fun
 
 For the simpler scenarios, using Custom Select is very similar to using the built-in AngularJS `select` directive.
 
+**Update**: Users of Angular >1.4 must use `cs-options` instead of `ng-options` attribute.
+
 ### Simple objects
 
 ```HTML
