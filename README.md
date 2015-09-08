@@ -8,7 +8,7 @@ Unlike many other autocomplete controls out there, this one is designed to work 
 
 ## Using Custom Select
 
-For the simpler scenarios, using Custom Select is very similar to using the built-in AngularJS `select` directive. For client-side filtering, you can use a regular Angular filter in conjunction with the `$searchTerm` local variable provided by the custom select, which corresponds to the text entered into the search textbox; or you can use a function in your `$scope` that implements a custom filter logic and returns the filtered items.
+For the simpler scenarios, using Custom Select is very similar to using the built-in AngularJS `select` directive. For client-side filtering, you can use a regular Angular filter in conjunction with the `$searchTerm` local variable provided by the custom select, which corresponds to the text entered into the search textbox; or you can use a function in your `$scope` that implements a custom filtering logic and returns the filtered items.
 
 ### Simple objects
 
@@ -22,6 +22,26 @@ For the simpler scenarios, using Custom Select is very similar to using the buil
 ```HTML
 <div custom-select="s.id as s.name for s in states | filter: { name: $searchTerm }" ng-model="state">
 </div>
+```
+
+### Custom filtering
+
+```HTML
+<div custom-select="p as p.name for p in findPeople($searchTerm)" ng-model="state">
+</div>
+```
+
+```JS
+$scope.findPeople = function (term) {
+	// Suppose we have a people array
+	var found = [];
+	for (var i = 0; i < people.length; i++) {
+		if (/* search all properties you like */) {
+			found.push(people[i]);
+		}
+	}
+	return found;
+};
 ```
 
 ### Enable adding items
@@ -45,7 +65,7 @@ $scope.growableOptions = {
 
 ### Asynchronous (server-side) filtering
 
-For server-side filter, you need to use a function just as you would in a custom filter case, with the difference that, given the asynchronous nature of AJAX, such function must return a promise. As soon as the promise is resolved, the new items (if any) are displayed inside the list.
+You need to use a function just as you would for a custom filter, with the difference that, given the asynchronous nature of AJAX, such function must return a promise. As soon as the promise is resolved, the new items (if any) are displayed inside the list.
 
 ```HTML
 <div custom-select="a for a in searchAsync($searchTerm)" ng-model="custom2">
