@@ -58,7 +58,7 @@
 			
 			<h3>Custom item template</h3>
 			<p>Selected person: {{ person | json }}</p>
-			<div custom-select="t as t.name for t in people" ng-model="person">
+			<div custom-select="t as t.name for t in people | filter: { name: $searchTerm }" ng-model="person">
 				<div class="pull-left" style="width: 40px">
 					<img ng-src="{{ t.picture }}" style="width: 30px" />
 				</div>
@@ -173,7 +173,9 @@
 						displayText: 'Select or add a new item...',
 						addText: 'Add new item',
 						onAdd: function () {
-							$scope.growable.push('Item ' + ($scope.growable.length + 1));
+							var newItem = 'Item ' + ($scope.growable.length + 1);
+							$scope.growable.push(newItem);
+							return newItem;
 						}
 					};
 

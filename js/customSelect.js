@@ -199,9 +199,6 @@
 
 				// When model changes outside of the control, update the display text
 				controller.$render = function () {
-					// Added a timeout to allow for the inner select element
-					// to respond to the model change and update the selected option
-					//$timeout(setDisplayText, 50);
 					setDisplayText();
 				};
 
@@ -329,8 +326,25 @@
 
 						typeof options.onSelect === "function" && options.onSelect(item);
 					};
+
 					childScope.add = function () {
-						options.onAdd(childScope.select);
+						$q.when(options.onAdd(), function (item) {
+							if (!item) return;
+
+							var locals = {};
+							locals[valueName] = item;
+							var value = valueFn(scope, locals),
+								label = displayFn(scope, locals);
+
+							matchMap[hashKey(value)] = {
+								value: value,
+								label: label/*,
+									model: matches[i]*/
+							};
+
+							childScope.matches.push(item);
+							childScope.select(item);
+						});
 					};
 
 					childScope.format = format;
