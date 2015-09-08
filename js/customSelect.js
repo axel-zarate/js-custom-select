@@ -82,7 +82,8 @@
 				var options = getOptions(),
 					timeoutHandle,
 					lastSearch = '',
-					focusedIndex = -1;
+					focusedIndex = -1,
+						matchMap = {};
 
 				var itemTemplate = elem.html().trim() || '{{' + (match[2] || match[1]) + '}}',
 
@@ -229,13 +230,20 @@
 					anchorElement.focus();
 				}
 
+				var needsDisplayText;
 				function setDisplayText() {
-					var locals = {};
-
+					var locals = { };
 					locals[valueName] = controller.$modelValue;
-					
 					var text = displayFn(scope, locals);
 
+					if (text === undefined) {
+						var map = matchMap[hashKey(controller.$modelValue)];
+						if (map) {
+							text = map.label;
+						}
+					}
+
+					needsDisplayText = !text;
 					childScope.displayText = text || options.displayText;
 				}
 
@@ -272,9 +280,28 @@
 				function getMatches(searchTerm) {
 					var locals = { $searchTerm: searchTerm }
 					$q.when(valuesFn(scope, locals)).then(function (matches) {
+						if (!matches) return;
+
 						if (searchTerm === inputElement.val().trim()/* && hasFocus*/) {
-							childScope.matches = matches;
+							matchMap = {};
+							childScope.matches.length = 0;
+							for (var i = 0; i < matches.length; i++) {
+								locals[valueName] = matches[i];
+								var value = valueFn(scope, locals),
+									label = displayFn(scope, locals);
+
+								matchMap[hashKey(value)] = {
+									value: value,
+									label: label,
+									model: matches[i]
+								};
+
+								childScope.matches.push(matches[i]);
+							}
+							//childScope.matches = matches;
 						}
+
+						if (needsDisplayText) setDisplayText();
 					}, function() {
 						resetMatches();
 					});
@@ -282,7 +309,7 @@
 
 				function resetMatches() {
 					childScope.matches = [];
-					//childScope.activeIdx = -1;
+					focusedIndex = -1;
 				};
 
 				function configChildScope() {
@@ -309,6 +336,27 @@
 					childScope.format = format;
 
 					setDisplayText();
+				}
+
+				var current = 0;
+				function hashKey(obj) {
+					if (obj === undefined) return 'undefined';
+
+					var objType = typeof obj,
+						key;
+
+					if (objType == 'object' && obj !== null) {
+						if (typeof (key = obj.$$hashKey) == 'function') {
+							// must invoke on object to keep the right this
+							key = obj.$$hashKey();
+						} else if (key === undefined) {
+							key = obj.$$hashKey = 'cs-' + (current++);
+						}
+					} else {
+						key = obj;
+					}
+
+					return objType + ':' + key;
 				}
 			}
 		};
