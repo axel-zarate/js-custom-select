@@ -26,11 +26,11 @@
 			
 			<h2>Simple objects</h2>
 			<p>Selected fruit: {{ fruit }}</p>
-			<div custom-select ng-model="fruit" cs-options="f for f in fruits | filter: $searchTerm" autofocus></div>
+			<div custom-select="f for f in fruits | filter: $searchTerm" ng-model="fruit" autofocus></div>
 			<button type="button" class="btn" ng-click="setToMango()">Set to mango</button>
 			<h2>Complex objects</h2>
 			<p>Selected state: {{ state }}</p>
-			<div custom-select ng-model="state" cs-options="s.id as s.name for s in states | filter: { name: $searchTerm }"></div>
+			<div custom-select="s.id as s.name for s in states | filter: { name: $searchTerm }" ng-model="state"></div>
 			<button type="button" class="btn" ng-click="reset()">Reset</button>
 			
 			<h2>Custom options</h2>
@@ -38,7 +38,7 @@
 			
 			<div class="row">
 				<div class="span3">
-					<div custom-select="customOptions" ng-model="test" cs-options="g for g in custom | filter: $searchTerm" ng-disabled="!isCustomEnabled"></div>
+					<div custom-select="g for g in custom | filter: $searchTerm" ng-model="test" custom-select-options="customOptions" ng-disabled="!isCustomEnabled"></div>
 				</div>
 				<div class="span3">
 					<label>Change initial display text</label>
@@ -51,14 +51,14 @@
 			</div>
 			
 			<h3>Add new items</h3>
-			<div custom-select="growableOptions" ng-model="custom1" cs-options="g for g in growable | filter: $searchTerm"></div>
+			<div custom-select="g for g in growable | filter: $searchTerm" ng-model="custom1" custom-select-options="growableOptions"></div>
 			
 			<h3>Custom filtering</h3>
-			<div custom-select ng-model="custom2" cs-options="a for a in searchAsync($searchTerm)"></div>
+			<div custom-select="a for a in searchAsync($searchTerm)" ng-model="custom2"></div>
 			
 			<h3>Custom item template</h3>
 			<p>Selected person: {{ person | json }}</p>
-			<div custom-select ng-model="person" cs-options="t as t.name for t in people">
+			<div custom-select="t as t.name for t in people" ng-model="person">
 				<div class="pull-left" style="width: 40px">
 					<img ng-src="{{ t.picture }}" style="width: 30px" />
 				</div>
@@ -82,14 +82,12 @@
 
 		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/2.3.2/js/bootstrap.min.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
-		<script src="js/format.js"></script>
 		<script src="js/customSelect.js"></script>
 		<script>
 			(function () {
 				var app = angular.module('Demo', ['AxelSoft']);
 
 				app.controller('DemoController', ['$scope', '$timeout', '$q', function ($scope, $timeout, $q) {
-					$scope.fruit = 'grapefruit';
 					$scope.fruits = ['apple', 'orange', 'mango', 'grapefruit', 'banana', 'melon'];
 					$scope.setToMango = function () {
 						$scope.fruit = 'mango';

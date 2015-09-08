@@ -57,17 +57,17 @@
 			restrict: 'A',
 			require: 'ngModel',
 			link: function (scope, elem, attrs, controller) {
-				var ngOptions = attrs.ngOptions || attrs.csOptions;
-				if (!ngOptions) {
-					throw new Error('Expected ng-options or cs-options attribute.');
+				var customSelect = attrs.customSelect;
+				if (!customSelect) {
+					throw new Error('Expected custom-select attribute value.');
 				}
 
-				var match = ngOptions.match(CS_OPTIONS_REGEXP);
+				var match = customSelect.match(CS_OPTIONS_REGEXP);
 
 				if (!match) {
 					throw new Error("Expected expression in form of " +
 						"'_select_ (as _label_)? for _value_ in _collection_'" +
-						" but got '" + ngOptions + "'.");
+						" but got '" + customSelect + "'.");
 				}
 
 				elem.addClass('dropdown custom-select');
@@ -248,7 +248,7 @@
 				}
 
 				function getOptions() {
-					return angular.extend({}, baseOptions, scope.$eval(attrs.customSelect));
+					return angular.extend({}, baseOptions, scope.$eval(attrs.customSelectOptions));
 				}
 
 				function getDisplayText() {
@@ -292,8 +292,8 @@
 
 								matchMap[hashKey(value)] = {
 									value: value,
-									label: label,
-									model: matches[i]
+									label: label/*,
+									model: matches[i]*/
 								};
 
 								childScope.matches.push(matches[i]);
