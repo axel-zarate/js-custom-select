@@ -8,7 +8,7 @@ Unlike many other autocomplete controls out there, this one is designed to work 
 
 ## Using Custom Select
 
-For the simpler scenarios, using Custom Select is very similar to using the built-in AngularJS `select` directive.
+For the simpler scenarios, using Custom Select is very similar to using the built-in AngularJS `select` directive. For client-side filtering, you can use a regular Angular filter in conjunction with the `$searchTerm` local variable provided by the custom select, which corresponds to the text entered into the search textbox; or you can use a function in your `$scope` that implements a custom filter logic and returns the filtered items.
 
 ### Simple objects
 
@@ -45,7 +45,7 @@ $scope.growableOptions = {
 
 ### Asynchronous (server-side) filtering
 
-Simply execute your request (using the `$http` service or similar) and replace the items with a new array.
+For server-side filter, you need to use a function just as you would in a custom filter case, with the difference that, given the asynchronous nature of AJAX, such function must return a promise. As soon as the promise is resolved, the new items (if any) are displayed inside the list.
 
 ```HTML
 <div custom-select="a for a in searchAsync($searchTerm)" ng-model="custom2">
@@ -54,11 +54,12 @@ Simply execute your request (using the `$http` service or similar) and replace t
 
 ```JS
 $scope.searchAsync = function (term) {
-	// No search term: return initial items
+	// No search term: return some default items
 	if (!term) {
 		return  ['Item 1', 'Item 2', 'Item 3'];
 	}
 	var deferred = $q.defer();
+	// Simulate an $http call
 	$timeout(function () {
 		var result = [];
 		for (var i = 1; i <= 3; i++)
