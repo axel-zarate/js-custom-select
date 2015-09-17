@@ -27,7 +27,7 @@ For the simpler scenarios, using Custom Select is very similar to using the buil
 ### Custom filtering
 
 ```HTML
-<div custom-select="p as p.name for p in findPeople($searchTerm)" ng-model="state">
+<div custom-select="p as p.name for p in findPeople($searchTerm)" ng-model="people">
 </div>
 ```
 
@@ -74,21 +74,8 @@ You need to use a function just as you would for a custom filter, with the diffe
 
 ```JS
 $scope.searchAsync = function (term) {
-	// No search term: return some default items
-	if (!term) {
-		return  ['Item 1', 'Item 2', 'Item 3'];
-	}
-	var deferred = $q.defer();
-	// Simulate an $http call
-	$timeout(function () {
-		var result = [];
-		for (var i = 1; i <= 3; i++)
-		{
-			result.push(term + ' ' + i);
-		}
-		deferred.resolve(result);
-	}, 300);
-	return deferred.promise;
+	var url = 'http://mysite.com/search?q=' + encodeURIComponent(term);
+	return $http.get(url); // This server call must return an array of objects
 };
 ```
 
