@@ -8,6 +8,38 @@
 		};
 	}
 
+	/**
+	 * A replacement utility for internationalization very similar to sprintf.
+	 *
+	 * @param replace {mixed} The tokens to replace depends on type
+	 *  string: all instances of $0 will be replaced
+	 *  array: each instance of $0, $1, $2 etc. will be placed with each array item in corresponding order
+	 *  object: all attributes will be iterated through, with :key being replaced with its corresponding value
+	 * @return string
+	 *
+	 * @example: 'Hello :name, how are you :day'.format({ name:'John', day:'Today' })
+	 * @example: 'Records $0 to $1 out of $2 total'.format(['10', '20', '3000'])
+	 * @example: '$0 agrees to all mentions $0 makes in the event that $0 hits a tree while $0 is driving drunk'.format('Bob')
+	 */
+	function format(value, replace) {
+		if (!value) {
+			return value;
+		}
+		var target = value.toString();
+		if (replace === undefined) {
+			return target;
+		}
+		if (!angular.isArray(replace) && !angular.isObject(replace)) {
+			return target.split('$0').join(replace);
+		}
+		var token = angular.isArray(replace) && '$' || ':';
+
+		angular.forEach(replace, function (value, key) {
+			target = target.split(token + key).join(value);
+		});
+		return target;
+	}
+
 	var module = angular.module('AxelSoft', []);
 
 	module.value('customSelectDefaults', {
@@ -15,52 +47,46 @@
 		emptyListText: 'There are no items to display',
 		emptySearchResultText: 'No results match "$0"',
 		addText: 'Add',
-		searchDelay: 1000
+		searchDelay: 300
 	});
-	
-	module.directive('customSelect', ['$parse', '$compile', '$timeout', 'customSelectDefaults', function ($parse, $compile, $timeout, baseOptions) {
-		var NG_OPTIONS_REGEXP = /^\s*(.*?)(?:\s+as\s+(.*?))?(?:\s+group\s+by\s+(.*))?\s+for\s+(?:([\$\w][\$\w]*)|(?:\(\s*([\$\w][\$\w]*)\s*,\s*([\$\w][\$\w]*)\s*\)))\s+in\s+(.*?)(?:\s+track\s+by\s+(.*?))?$/;
-		
+
+	module.directive('customSelect', ['$parse', '$compile', '$timeout', '$q', 'customSelectDefaults', function ($parse, $compile, $timeout, $q, baseOptions) {
+		var CS_OPTIONS_REGEXP = /^\s*(.*?)(?:\s+as\s+(.*?))?\s+for\s+(?:([\$\w][\$\w\d]*))\s+in\s+(.*)$/;
+
 		return {
 			restrict: 'A',
 			require: 'ngModel',
 			link: function (scope, elem, attrs, controller) {
-				var ngOptions = attrs.ngOptions || attrs.csOptions;
-				if (!ngOptions) {
-					throw new Error('Expected ng-options or cs-options attribute.');
+				var customSelect = attrs.customSelect;
+				if (!customSelect) {
+					throw new Error('Expected custom-select attribute value.');
 				}
 
-				var match = ngOptions.match(NG_OPTIONS_REGEXP);
+				var match = customSelect.match(CS_OPTIONS_REGEXP);
 
 				if (!match) {
 					throw new Error("Expected expression in form of " +
-						"'_select_ (as _label_)? for (_key_,)?_value_ in _collection_'" +
-						" but got '" + ngOptions + "'.");
+						"'_select_ (as _label_)? for _value_ in _collection_'" +
+						" but got '" + customSelect + "'.");
 				}
 
 				elem.addClass('dropdown custom-select');
 
 				// Ng-Options break down
 				var displayFn = $parse(match[2] || match[1]),
-					valueName = match[4] || match[6],
-					groupByFn = $parse(match[3] || ''),
+					valueName = match[3],
 					valueFn = $parse(match[2] ? match[1] : valueName),
-					values = match[7],
+					values = match[4],
 					valuesFn = $parse(values);
 
 				var options = getOptions(),
-					searchModel = match[2] ? (match[2]).replace(new RegExp('^' + valueName + '\\.'), 'search.') : 'search',
-					remoteSearch = typeof options.onSearch === 'function',
 					timeoutHandle,
 					lastSearch = '',
 					focusedIndex = -1,
-					getInitialSearchModel = function () {
-						return match[2] ? {} : '';
-					};
+						matchMap = {};
 
 				var itemTemplate = elem.html().trim() || '{{' + (match[2] || match[1]) + '}}',
 
-					selectTemplate = '<select class="hide" ng-options="' + ngOptions + '" ng-model="' + attrs.ngModel + '" ' + (attrs.ngChange ? 'ng-change="' + attrs.ngChange + '"' : '') + '></select>',
 					dropdownTemplate =
 					'<a class="dropdown-toggle" data-toggle="dropdown" href ng-class="{ disabled: disabled }">' +
 						'<span>{{displayText}}</span>' +
@@ -68,18 +94,18 @@
 					'</a>' +
 					'<div class="dropdown-menu">' +
 						'<div stop-propagation="click" class="custom-select-search">' +
-							'<input class="' + attrs.selectClass + '" type="text" autocomplete="off" ng-model="' + searchModel + '" />' +
+							'<input class="' + attrs.selectClass + '" type="text" autocomplete="off" ng-model="searchTerm" />' +
 						'</div>' +
 						'<ul role="menu">' +
-							'<li role="presentation" ng-repeat="' + valueName + ' in ' + values + (remoteSearch ? '' : ' | filter: search') + '">' +
+							'<li role="presentation" ng-repeat="' + valueName + ' in matches">' +
 								'<a role="menuitem" tabindex="-1" href ng-click="select(' + valueName + ')">' +
 									itemTemplate +
 								'</a>' +
 							'</li>' +
-							'<li ng-hide="(' + values + (remoteSearch ? '' : ' | filter: search') + ').length" class="empty-result" stop-propagation="click">' +
+							'<li ng-hide="matches.length" class="empty-result" stop-propagation="click">' +
 								'<em class="muted">' +
-									'<span ng-hide="' + searchModel + '">{{emptyListText}}</span>' +
-									'<span class="word-break" ng-show="' + searchModel + '">{{emptySearchResultText | format:' + searchModel + '}}</span>' +
+									'<span ng-hide="searchTerm">{{emptyListText}}</span>' +
+									'<span class="word-break" ng-show="searchTerm">{{ format(emptySearchResultText, searchTerm) }}</span>' +
 								'</em>' +
 							'</li>' +
 						'</ul>' +
@@ -91,9 +117,6 @@
 
 				// Clear element contents
 				elem.empty();
-
-				// Create hidden select element
-				var selectElement = angular.element(selectTemplate);
 
 				// Create dropdown element
 				var dropdownElement = angular.element(dropdownTemplate),
@@ -110,12 +133,9 @@
 					if (childScope.disabled) {
 						return;
 					}
-					if (!remoteSearch) {
-						childScope.$apply(function () {
-							lastSearch = '';
-							childScope.search = getInitialSearchModel();
-						});
-					}
+					childScope.$apply(function () {
+						lastSearch = '';
+					});
 					focusedIndex = -1;
 					inputElement.focus();
 				});
@@ -171,9 +191,7 @@
 					}
 				});
 
-				// Compile select element
-				$compile(selectElement)(scope);
-				elem.append(selectElement);
+				resetMatches();
 
 				// Compile template against child scope
 				$compile(dropdownElement)(childScope);
@@ -181,9 +199,7 @@
 
 				// When model changes outside of the control, update the display text
 				controller.$render = function () {
-					// Added a timeout to allow for the inner select element
-					// to respond to the model change and update the selected option
-					$timeout(setDisplayText, 50);
+					setDisplayText();
 				};
 
 				// Watch for changes in the default display text
@@ -193,34 +209,43 @@
 					childScope.disabled = value;
 				});
 
-				// Watch for changes on the original values and update the isolated child scope accordingly
-				scope.$watch(values, function (value) {
-					// childScope[values] = value;
-					valuesFn.assign(childScope, value);
+				childScope.$watch('searchTerm', function (newValue) {
+					if (timeoutHandle) {
+						$timeout.cancel(timeoutHandle);
+					}
+
+					var term = (newValue || '').trim();
+					timeoutHandle = $timeout(function () {
+						getMatches(term);
+					},
+					// If empty string, do not delay
+					(term && options.searchDelay) || 0);
 				});
 
 				// Support for autofocus
 				if ('autofocus' in attrs) {
 					anchorElement.focus();
 				}
-				
-				function setDisplayText() {
-					var collection,
-						locals = {},
-						text = undefined,
-						key = selectElement.val();
 
-					if (key && key !== '?') {
-						collection = valuesFn(childScope) || [];
-						locals[valueName] = collection[key];
-						text = displayFn(childScope, locals);
+				var needsDisplayText;
+				function setDisplayText() {
+					var locals = { };
+					locals[valueName] = controller.$modelValue;
+					var text = displayFn(scope, locals);
+
+					if (text === undefined) {
+						var map = matchMap[hashKey(controller.$modelValue)];
+						if (map) {
+							text = map.label;
+						}
 					}
 
+					needsDisplayText = !text;
 					childScope.displayText = text || options.displayText;
 				}
 
 				function getOptions() {
-					return angular.extend({}, baseOptions, scope.$eval(attrs.customSelect));
+					return angular.extend({}, baseOptions, scope.$eval(attrs.customSelectOptions));
 				}
 
 				function getDisplayText() {
@@ -249,6 +274,41 @@
 					}
 				}
 
+				function getMatches(searchTerm) {
+					var locals = { $searchTerm: searchTerm }
+					$q.when(valuesFn(scope, locals)).then(function (matches) {
+						if (!matches) return;
+
+						if (searchTerm === inputElement.val().trim()/* && hasFocus*/) {
+							matchMap = {};
+							childScope.matches.length = 0;
+							for (var i = 0; i < matches.length; i++) {
+								locals[valueName] = matches[i];
+								var value = valueFn(scope, locals),
+									label = displayFn(scope, locals);
+
+								matchMap[hashKey(value)] = {
+									value: value,
+									label: label/*,
+									model: matches[i]*/
+								};
+
+								childScope.matches.push(matches[i]);
+							}
+							//childScope.matches = matches;
+						}
+
+						if (needsDisplayText) setDisplayText();
+					}, function() {
+						resetMatches();
+					});
+				}
+
+				function resetMatches() {
+					childScope.matches = [];
+					focusedIndex = -1;
+				};
+
 				function configChildScope() {
 					childScope.addText = options.addText;
 					childScope.emptySearchResultText = options.emptySearchResultText;
@@ -262,37 +322,55 @@
 						childScope.displayText = displayFn(childScope, locals) || options.displayText;
 						controller.$setViewValue(value);
 
-						childScope.search = getInitialSearchModel();
 						anchorElement.focus();
 
 						typeof options.onSelect === "function" && options.onSelect(item);
 					};
+
 					childScope.add = function () {
-						options.onAdd(childScope.select);
+						$q.when(options.onAdd(), function (item) {
+							if (!item) return;
+
+							var locals = {};
+							locals[valueName] = item;
+							var value = valueFn(scope, locals),
+								label = displayFn(scope, locals);
+
+							matchMap[hashKey(value)] = {
+								value: value,
+								label: label/*,
+									model: matches[i]*/
+							};
+
+							childScope.matches.push(item);
+							childScope.select(item);
+						});
 					};
 
-					if (remoteSearch) {
-						inputElement.attr('ng-change', 'onSearch(' + searchModel + ')');
-						childScope.onSearch = function (term) {
-							if (timeoutHandle) {
-								timeoutHandle = $timeout.cancel(timeoutHandle);
-							}
-
-							term = (term || '').trim();
-
-							timeoutHandle = $timeout(function () {
-								timeoutHandle = $timeout.cancel(timeoutHandle);
-
-								if (term != lastSearch) {
-									options.onSearch((lastSearch = term));
-								}
-							},
-							// If empty string, do not delay
-							(term && options.searchDelay) || 0);
-						};
-					}
+					childScope.format = format;
 
 					setDisplayText();
+				}
+
+				var current = 0;
+				function hashKey(obj) {
+					if (obj === undefined) return 'undefined';
+
+					var objType = typeof obj,
+						key;
+
+					if (objType == 'object' && obj !== null) {
+						if (typeof (key = obj.$$hashKey) == 'function') {
+							// must invoke on object to keep the right this
+							key = obj.$$hashKey();
+						} else if (key === undefined) {
+							key = obj.$$hashKey = 'cs-' + (current++);
+						}
+					} else {
+						key = obj;
+					}
+
+					return objType + ':' + key;
 				}
 			}
 		};

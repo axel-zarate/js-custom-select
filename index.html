@@ -26,11 +26,11 @@
 			
 			<h2>Simple objects</h2>
 			<p>Selected fruit: {{ fruit }}</p>
-			<div custom-select ng-model="fruit" cs-options="f for f in fruits" autofocus></div>
+			<div custom-select="f for f in fruits | filter: $searchTerm" ng-model="fruit" autofocus></div>
 			<button type="button" class="btn" ng-click="setToMango()">Set to mango</button>
 			<h2>Complex objects</h2>
 			<p>Selected state: {{ state }}</p>
-			<div custom-select ng-model="state" ng-options="s.id as s.name for s in states"></div>
+			<div custom-select="s.id as s.name for s in states | filter: { name: $searchTerm }" ng-model="state"></div>
 			<button type="button" class="btn" ng-click="reset()">Reset</button>
 			
 			<h2>Custom options</h2>
@@ -38,7 +38,7 @@
 			
 			<div class="row">
 				<div class="span3">
-					<div custom-select="customOptions" ng-model="test" ng-options="g for g in custom" ng-disabled="!isCustomEnabled"></div>
+					<div custom-select="g for g in custom | filter: $searchTerm" ng-model="test" custom-select-options="customOptions" ng-disabled="!isCustomEnabled"></div>
 				</div>
 				<div class="span3">
 					<label>Change initial display text</label>
@@ -51,14 +51,14 @@
 			</div>
 			
 			<h3>Add new items</h3>
-			<div custom-select="growableOptions" ng-model="custom1" ng-options="g for g in growable"></div>
+			<div custom-select="g for g in growable | filter: $searchTerm" ng-model="custom1" custom-select-options="growableOptions"></div>
 			
 			<h3>Custom filtering</h3>
-			<div custom-select="asyncOptions" ng-model="custom2" ng-options="a for a in async"></div>
+			<div custom-select="a for a in searchAsync($searchTerm)" ng-model="custom2"></div>
 			
 			<h3>Custom item template</h3>
 			<p>Selected person: {{ person | json }}</p>
-			<div custom-select ng-model="person" ng-options="t as t.name for t in people">
+			<div custom-select="t as t.name for t in people | filter: { name: $searchTerm }" ng-model="person">
 				<div class="pull-left" style="width: 40px">
 					<img ng-src="{{ t.picture }}" style="width: 30px" />
 				</div>
@@ -81,19 +81,13 @@
 		<![endif]-->
 
 		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/2.3.2/js/bootstrap.min.js"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.21/angular.min.js"></script>
-		<script>
-			// This is needed in order to use the format filter
-			angular.module('ui.filters', []);
-		</script>
-		<script src="js/format.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
 		<script src="js/customSelect.js"></script>
 		<script>
 			(function () {
-				var app = angular.module('Demo', ['ui.filters', 'AxelSoft']);
+				var app = angular.module('Demo', ['AxelSoft']);
 
-				app.controller('DemoController', ['$scope', '$timeout', function ($scope, $timeout) {
-
+				app.controller('DemoController', ['$scope', '$timeout', '$q', function ($scope, $timeout, $q) {
 					$scope.fruits = ['apple', 'orange', 'mango', 'grapefruit', 'banana', 'melon'];
 					$scope.setToMango = function () {
 						$scope.fruit = 'mango';
@@ -161,9 +155,10 @@
 						{ id: 'WI', name: 'Wisconsin' },
 						{ id: 'WY', name: 'Wyoming' }
 					];
-          $scope.reset = function () {
-            $scope.state = undefined;
-          };
+
+					$scope.reset = function () {
+						$scope.state = undefined;
+					};
 
 					$scope.isCustomEnabled = true;
 					$scope.custom = ['Item 1', 'Item 2', 'Item 3'];
@@ -178,29 +173,27 @@
 						displayText: 'Select or add a new item...',
 						addText: 'Add new item',
 						onAdd: function () {
-							$scope.growable.push('Item ' + ($scope.growable.length + 1));
+							var newItem = 'Item ' + ($scope.growable.length + 1);
+							$scope.growable.push(newItem);
+							return newItem;
 						}
 					};
 
-					$scope.async = ['Item 1', 'Item 2', 'Item 3'];
-					$scope.asyncOptions = {
-						onSearch: function (term) {
-							// No search term: restore original items
-							if (!term) {
-								$scope.async = ['Item 1', 'Item 2', 'Item 3'];
-								return;
-							}
-							
-							// Simulate asynchronous ajax call
-							$timeout(function () {
-								var result = [];
-								for (var i = 1; i <= 3; i++)
-								{
-									result.push(term + ' ' + i);
-								}
-								$scope.async = result;
-							}, 300);
+					$scope.searchAsync = function (term) {
+							// No search term: return initial items
+						if (!term) {
+							return  ['Item 1', 'Item 2', 'Item 3'];
 						}
+						var deferred = $q.defer();
+						$timeout(function () {
+							var result = [];
+							for (var i = 1; i <= 3; i++)
+							{
+								result.push(term + ' ' + i);
+							}
+							deferred.resolve(result);
+						}, 300);
+						return deferred.promise;
 					};
 
 					$scope.people = [
@@ -208,6 +201,10 @@
 						{ name: 'Axel Zarate', phone: '888-777-6666', picture: 'https://avatars0.githubusercontent.com/u/4431445?s=60' },
 						{ name: 'Walter White', phone: '303-111-2222', picture: 'http://upstreamideas.org/wp-content/uploads/2013/10/ww.jpg' }
 					];
+					
+					//$scope.searchPeople = function (term) {
+						
+					//};
 				}]);
 				
 			})();
