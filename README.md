@@ -112,7 +112,7 @@ emptyListText | String | Message to display in the dropdown when there source ar
 emptySearchResultText | String | Message to display in the dropdown when the search filter yields zero results (the difference with `emptyListText` is that there may be items in the data source, but none of them match the search string). Default: `'No results match "$0"'`.
 addText | String | Text to display on the add button; additionally, `onAdd` callback function must be supplied. Default: `'Add'`.
 onAdd | Function | A callback function to execute when the Add button is pressed. Default: `undefined`.
-searchDelay | Integer | Time in milliseconds to wait until the filtering is performed (only used in remote search mode). Default: `1000` (one second).
+searchDelay | Integer | Time in milliseconds to wait until the filtering is performed. Default: `300` (0.3 seconds).
 onSelect | Function | Callback function called when the user selects an item from the dropdown.
 
 ## Dependencies
