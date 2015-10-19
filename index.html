@@ -76,7 +76,7 @@
             
             <h3>Nested</h3>
             <label>Level 1</label>
-            <div custom-select="g for g in nestedItemsLevel1 | filter: $searchTerm" ng-model="level1"></div>
+            <div custom-select="g for g in nestedItemsLevel1 | filter: $searchTerm" custom-select-options="level1Options" ng-model="level1"></div>
             <label>Level 2</label>
             <div custom-select="g for g in nestedItemsLevel2 | filter: $searchTerm" ng-model="level2"></div>
         </div>
@@ -214,16 +214,17 @@
                     ];
                     
                     $scope.nestedItemsLevel1 = ['Item 1', 'Item 2', 'Item 3'];
-                    $scope.nestedItemsLevel2 = [];
-                    $scope.$watch('level1', function (newValue, oldValue) {
-                        if (newValue !== undefined) {
+                    $scope.level1Options = {
+                        onSelect: function (item) {
                             var items = [];
                             for (var i = 1; i <= 5; i++) {
-                                items.push(newValue + ': ' + 'Nested ' + i);
+                                items.push(item + ': ' + 'Nested ' + i);
                             }
                             $scope.nestedItemsLevel2 = items;
                         }
-                    });
+                    };
+                    
+                    $scope.nestedItemsLevel2 = [];
                 }]);
                 
             })();
