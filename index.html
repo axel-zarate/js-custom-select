@@ -1,213 +1,232 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<title>Angular Custom Select</title>
+    <head>
+        <meta charset="utf-8" />
+        <title>Angular Custom Select</title>
 
-		<meta name="description" content="overview &amp; stats" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="overview &amp; stats" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-		<!-- basic styles -->
+        <!-- basic styles -->
 
-		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/2.3.2/css/bootstrap.min.css" />
-		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/2.3.2/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" />
 
-		<!--[if IE 7]>
-		  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome-ie7.min.css" />
-		<![endif]-->
-		
-		<link rel="stylesheet" href="css/style.css" />
+        <!--[if IE 7]>
+          <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome-ie7.min.css" />
+        <![endif]-->
+        
+        <link rel="stylesheet" href="css/style.css" />
+        <style>
+            body {
+                margin-top: 20px;
+                margin-bottom: 50px;
+            }
+        </style>
+    </head>
 
-	</head>
+    <body ng-app="Demo">
+        <div class="container" ng-controller="DemoController">
+            <h1>Custom Select Example</h1>
+            
+            <h2>Simple objects</h2>
+            <p>Selected fruit: {{ fruit }}</p>
+            <div custom-select="f for f in fruits | filter: $searchTerm" ng-model="fruit" autofocus></div>
+            <button type="button" class="btn" ng-click="setToMango()">Set to mango</button>
+            <h2>Complex objects</h2>
+            <p>Selected state: {{ state }}</p>
+            <div custom-select="s.id as s.name for s in states | filter: { name: $searchTerm }" ng-model="state"></div>
+            <button type="button" class="btn" ng-click="reset()">Reset</button>
+            
+            <h2>Custom options</h2>
+            <h3>Change the appearance</h3>
+            
+            <div class="row">
+                <div class="span3">
+                    <div custom-select="g for g in custom | filter: $searchTerm" ng-model="test" custom-select-options="customOptions" ng-disabled="!isCustomEnabled"></div>
+                </div>
+                <div class="span3">
+                    <label>Change initial display text</label>
+                    <input type="text" ng-model="customOptions.displayText" />
+                    <label class="checkbox">
+                        <input type="checkbox" ng-model="isCustomEnabled" />
+                        Is enabled
+                    </label>
+                </div>
+            </div>
+            
+            <h3>Add new items</h3>
+            <div custom-select="g for g in growable | filter: $searchTerm" ng-model="custom1" custom-select-options="growableOptions"></div>
+            
+            <h3>Custom filtering</h3>
+            <div custom-select="a for a in searchAsync($searchTerm)" custom-select-options="{ 'async': true }" ng-model="custom2"></div>
+            
+            <h3>Custom item template</h3>
+            <p>Selected person: {{ person | json }}</p>
+            <div custom-select="t as t.name for t in people | filter: { name: $searchTerm }" ng-model="person">
+                <div class="pull-left" style="width: 40px">
+                    <img ng-src="{{ t.picture }}" style="width: 30px" />
+                </div>
+                <div class="pull-left">
+                    <strong>{{ t.name }}</strong><br />
+                    <span>{{ t.phone }}</span>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            
+            <h3>Nested</h3>
+            <label>Level 1</label>
+            <div custom-select="g for g in nestedItemsLevel1 | filter: $searchTerm" ng-model="level1"></div>
+            <label>Level 2</label>
+            <div custom-select="g for g in nestedItemsLevel2 | filter: $searchTerm" ng-model="level2"></div>
+        </div>
+        <!-- basic scripts -->
 
-	<body ng-app="Demo">
-		<div class="container" ng-controller="DemoController">
-			<h1>Custom Select Example</h1>
-			
-			<h2>Simple objects</h2>
-			<p>Selected fruit: {{ fruit }}</p>
-			<div custom-select="f for f in fruits | filter: $searchTerm" ng-model="fruit" autofocus></div>
-			<button type="button" class="btn" ng-click="setToMango()">Set to mango</button>
-			<h2>Complex objects</h2>
-			<p>Selected state: {{ state }}</p>
-			<div custom-select="s.id as s.name for s in states | filter: { name: $searchTerm }" ng-model="state"></div>
-			<button type="button" class="btn" ng-click="reset()">Reset</button>
-			
-			<h2>Custom options</h2>
-			<h3>Change the appearance</h3>
-			
-			<div class="row">
-				<div class="span3">
-					<div custom-select="g for g in custom | filter: $searchTerm" ng-model="test" custom-select-options="customOptions" ng-disabled="!isCustomEnabled"></div>
-				</div>
-				<div class="span3">
-					<label>Change initial display text</label>
-					<input type="text" ng-model="customOptions.displayText" />
-					<label class="checkbox">
-						<input type="checkbox" ng-model="isCustomEnabled" />
-						Is enabled
-					</label>
-				</div>
-			</div>
-			
-			<h3>Add new items</h3>
-			<div custom-select="g for g in growable | filter: $searchTerm" ng-model="custom1" custom-select-options="growableOptions"></div>
-			
-			<h3>Custom filtering</h3>
-			<div custom-select="a for a in searchAsync($searchTerm)" ng-model="custom2"></div>
-			
-			<h3>Custom item template</h3>
-			<p>Selected person: {{ person | json }}</p>
-			<div custom-select="t as t.name for t in people | filter: { name: $searchTerm }" ng-model="person">
-				<div class="pull-left" style="width: 40px">
-					<img ng-src="{{ t.picture }}" style="width: 30px" />
-				</div>
-				<div class="pull-left">
-					<strong>{{ t.name }}</strong><br />
-					<span>{{ t.phone }}</span>
-				</div>
-				<div class="clearfix"></div>
-			</div>
-		</div>
-		<!-- basic scripts -->
+        <!--[if !IE]> -->
+        
+        <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <!-- <![endif]-->
 
-		<!--[if !IE]> -->
-		
-		<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
-		<!-- <![endif]-->
+        <!--[if IE]>
+        <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+        <![endif]-->
 
-		<!--[if IE]>
-		<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-		<![endif]-->
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
+        <script src="js/customSelect.js"></script>
+        <script>
+            (function () {
+                var app = angular.module('Demo', ['AxelSoft']);
 
-		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/2.3.2/js/bootstrap.min.js"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
-		<script src="js/customSelect.js"></script>
-		<script>
-			(function () {
-				var app = angular.module('Demo', ['AxelSoft']);
+                app.controller('DemoController', ['$scope', '$timeout', '$q', function ($scope, $timeout, $q) {
+                    $scope.fruits = ['apple', 'orange', 'mango', 'grapefruit', 'banana', 'melon'];
+                    $scope.setToMango = function () {
+                        $scope.fruit = 'mango';
+                    };
 
-				app.controller('DemoController', ['$scope', '$timeout', '$q', function ($scope, $timeout, $q) {
-					$scope.fruits = ['apple', 'orange', 'mango', 'grapefruit', 'banana', 'melon'];
-					$scope.setToMango = function () {
-						$scope.fruit = 'mango';
-					};
+                    $scope.state = 'AL';
+                    $scope.states = [
+                        { id: 'AL', name: 'Alabama' },
+                        { id: 'AK', name: 'Alaska' },
+                        { id: 'AS', name: 'American Samoa' },
+                        { id: 'AZ', name: 'Arizona' },
+                        { id: 'AR', name: 'Arkansas' },
+                        { id: 'CA', name: 'California' },
+                        { id: 'CO', name: 'Colorado' },
+                        { id: 'CT', name: 'Connecticut' },
+                        { id: 'DE', name: 'Delaware' },
+                        { id: 'DC', name: 'District Of Columbia' },
+                        { id: 'FM', name: 'Federated States Of Micronesia' },
+                        { id: 'FL', name: 'Florida' },
+                        { id: 'GA', name: 'Georgia' },
+                        { id: 'GU', name: 'Guam' },
+                        { id: 'HI', name: 'Hawaii' },
+                        { id: 'ID', name: 'Idaho' },
+                        { id: 'IL', name: 'Illinois' },
+                        { id: 'IN', name: 'Indiana' },
+                        { id: 'IA', name: 'Iowa' },
+                        { id: 'KS', name: 'Kansas' },
+                        { id: 'KY', name: 'Kentucky' },
+                        { id: 'LA', name: 'Louisiana' },
+                        { id: 'ME', name: 'Maine' },
+                        { id: 'MH', name: 'Marshall Islands' },
+                        { id: 'MD', name: 'Maryland' },
+                        { id: 'MA', name: 'Massachusetts' },
+                        { id: 'MI', name: 'Michigan' },
+                        { id: 'MN', name: 'Minnesota' },
+                        { id: 'MS', name: 'Mississippi' },
+                        { id: 'MO', name: 'Missouri' },
+                        { id: 'MT', name: 'Montana' },
+                        { id: 'NE', name: 'Nebraska' },
+                        { id: 'NV', name: 'Nevada' },
+                        { id: 'NH', name: 'New Hampshire' },
+                        { id: 'NJ', name: 'New Jersey' },
+                        { id: 'NM', name: 'New Mexico' },
+                        { id: 'NY', name: 'New York' },
+                        { id: 'NC', name: 'North Carolina' },
+                        { id: 'ND', name: 'North Dakota' },
+                        { id: 'MP', name: 'Northern Mariana Islands' },
+                        { id: 'OH', name: 'Ohio' },
+                        { id: 'OK', name: 'Oklahoma' },
+                        { id: 'OR', name: 'Oregon' },
+                        { id: 'PW', name: 'Palau' },
+                        { id: 'PA', name: 'Pennsylvania' },
+                        { id: 'PR', name: 'Puerto Rico' },
+                        { id: 'RI', name: 'Rhode Island' },
+                        { id: 'SC', name: 'South Carolina' },
+                        { id: 'SD', name: 'South Dakota' },
+                        { id: 'TN', name: 'Tennessee' },
+                        { id: 'TX', name: 'Texas' },
+                        { id: 'UT', name: 'Utah' },
+                        { id: 'VT', name: 'Vermont' },
+                        { id: 'VI', name: 'Virgin Islands' },
+                        { id: 'VA', name: 'Virginia' },
+                        { id: 'WA', name: 'Washington' },
+                        { id: 'WV', name: 'West Virginia' },
+                        { id: 'WI', name: 'Wisconsin' },
+                        { id: 'WY', name: 'Wyoming' }
+                    ];
 
-					$scope.state = 'AL';
-					$scope.states = [
-						{ id: 'AL', name: 'Alabama' },
-						{ id: 'AK', name: 'Alaska' },
-						{ id: 'AS', name: 'American Samoa' },
-						{ id: 'AZ', name: 'Arizona' },
-						{ id: 'AR', name: 'Arkansas' },
-						{ id: 'CA', name: 'California' },
-						{ id: 'CO', name: 'Colorado' },
-						{ id: 'CT', name: 'Connecticut' },
-						{ id: 'DE', name: 'Delaware' },
-						{ id: 'DC', name: 'District Of Columbia' },
-						{ id: 'FM', name: 'Federated States Of Micronesia' },
-						{ id: 'FL', name: 'Florida' },
-						{ id: 'GA', name: 'Georgia' },
-						{ id: 'GU', name: 'Guam' },
-						{ id: 'HI', name: 'Hawaii' },
-						{ id: 'ID', name: 'Idaho' },
-						{ id: 'IL', name: 'Illinois' },
-						{ id: 'IN', name: 'Indiana' },
-						{ id: 'IA', name: 'Iowa' },
-						{ id: 'KS', name: 'Kansas' },
-						{ id: 'KY', name: 'Kentucky' },
-						{ id: 'LA', name: 'Louisiana' },
-						{ id: 'ME', name: 'Maine' },
-						{ id: 'MH', name: 'Marshall Islands' },
-						{ id: 'MD', name: 'Maryland' },
-						{ id: 'MA', name: 'Massachusetts' },
-						{ id: 'MI', name: 'Michigan' },
-						{ id: 'MN', name: 'Minnesota' },
-						{ id: 'MS', name: 'Mississippi' },
-						{ id: 'MO', name: 'Missouri' },
-						{ id: 'MT', name: 'Montana' },
-						{ id: 'NE', name: 'Nebraska' },
-						{ id: 'NV', name: 'Nevada' },
-						{ id: 'NH', name: 'New Hampshire' },
-						{ id: 'NJ', name: 'New Jersey' },
-						{ id: 'NM', name: 'New Mexico' },
-						{ id: 'NY', name: 'New York' },
-						{ id: 'NC', name: 'North Carolina' },
-						{ id: 'ND', name: 'North Dakota' },
-						{ id: 'MP', name: 'Northern Mariana Islands' },
-						{ id: 'OH', name: 'Ohio' },
-						{ id: 'OK', name: 'Oklahoma' },
-						{ id: 'OR', name: 'Oregon' },
-						{ id: 'PW', name: 'Palau' },
-						{ id: 'PA', name: 'Pennsylvania' },
-						{ id: 'PR', name: 'Puerto Rico' },
-						{ id: 'RI', name: 'Rhode Island' },
-						{ id: 'SC', name: 'South Carolina' },
-						{ id: 'SD', name: 'South Dakota' },
-						{ id: 'TN', name: 'Tennessee' },
-						{ id: 'TX', name: 'Texas' },
-						{ id: 'UT', name: 'Utah' },
-						{ id: 'VT', name: 'Vermont' },
-						{ id: 'VI', name: 'Virgin Islands' },
-						{ id: 'VA', name: 'Virginia' },
-						{ id: 'WA', name: 'Washington' },
-						{ id: 'WV', name: 'West Virginia' },
-						{ id: 'WI', name: 'Wisconsin' },
-						{ id: 'WY', name: 'Wyoming' }
-					];
+                    $scope.reset = function () {
+                        $scope.state = undefined;
+                    };
 
-					$scope.reset = function () {
-						$scope.state = undefined;
-					};
+                    $scope.isCustomEnabled = true;
+                    $scope.custom = ['Item 1', 'Item 2', 'Item 3'];
+                    $scope.customOptions = {
+                        displayText: 'This text is modifyable',
+                        emptyListText: 'Oops! The list is empty',
+                        emptySearchResultText: 'Sorry, couldn\'t find "$0"'
+                    };
 
-					$scope.isCustomEnabled = true;
-					$scope.custom = ['Item 1', 'Item 2', 'Item 3'];
-					$scope.customOptions = {
-						displayText: 'This text is modifyable',
-						emptyListText: 'Oops! The list is empty',
-						emptySearchResultText: 'Sorry, couldn\'t find "$0"'
-					};
+                    $scope.growable = ['Item 1', 'Item 2', 'Item 3'];
+                    $scope.growableOptions = {
+                        displayText: 'Select or add a new item...',
+                        addText: 'Add new item',
+                        onAdd: function () {
+                            var newItem = 'Item ' + ($scope.growable.length + 1);
+                            $scope.growable.push(newItem);
+                            return newItem;
+                        }
+                    };
 
-					$scope.growable = ['Item 1', 'Item 2', 'Item 3'];
-					$scope.growableOptions = {
-						displayText: 'Select or add a new item...',
-						addText: 'Add new item',
-						onAdd: function () {
-							var newItem = 'Item ' + ($scope.growable.length + 1);
-							$scope.growable.push(newItem);
-							return newItem;
-						}
-					};
+                    $scope.searchAsync = function (term) {
+                            // No search term: return initial items
+                        if (!term) {
+                            return  ['Item 1', 'Item 2', 'Item 3'];
+                        }
+                        var deferred = $q.defer();
+                        $timeout(function () {
+                            var result = [];
+                            for (var i = 1; i <= 3; i++)
+                            {
+                                result.push(term + ' ' + i);
+                            }
+                            deferred.resolve(result);
+                        }, 300);
+                        return deferred.promise;
+                    };
 
-					$scope.searchAsync = function (term) {
-							// No search term: return initial items
-						if (!term) {
-							return  ['Item 1', 'Item 2', 'Item 3'];
-						}
-						var deferred = $q.defer();
-						$timeout(function () {
-							var result = [];
-							for (var i = 1; i <= 3; i++)
-							{
-								result.push(term + ' ' + i);
-							}
-							deferred.resolve(result);
-						}, 300);
-						return deferred.promise;
-					};
-
-					$scope.people = [
-						{ name: 'John Doe', phone: '555-123-456', picture: 'http://www.saintsfc.co.uk/images/common/bg_player_profile_default_big.png' },
-						{ name: 'Axel Zarate', phone: '888-777-6666', picture: 'https://avatars0.githubusercontent.com/u/4431445?s=60' },
-						{ name: 'Walter White', phone: '303-111-2222', picture: 'http://upstreamideas.org/wp-content/uploads/2013/10/ww.jpg' }
-					];
-					
-					//$scope.searchPeople = function (term) {
-						
-					//};
-				}]);
-				
-			})();
-		</script>
-	</body>
+                    $scope.people = [
+                        { name: 'John Doe', phone: '555-123-456', picture: 'http://www.saintsfc.co.uk/images/common/bg_player_profile_default_big.png' },
+                        { name: 'Axel Zarate', phone: '888-777-6666', picture: 'https://avatars0.githubusercontent.com/u/4431445?s=60' },
+                        { name: 'Walter White', phone: '303-111-2222', picture: 'http://upstreamideas.org/wp-content/uploads/2013/10/ww.jpg' }
+                    ];
+                    
+                    $scope.nestedItemsLevel1 = ['Item 1', 'Item 2', 'Item 3'];
+                    $scope.nestedItemsLevel2 = [];
+                    $scope.$watch('level1', function (newValue, oldValue) {
+                        if (newValue !== undefined) {
+                            var items = [];
+                            for (var i = 1; i <= 5; i++) {
+                                items.push(newValue + ': ' + 'Nested ' + i);
+                            }
+                            $scope.nestedItemsLevel2 = items;
+                        }
+                    });
+                }]);
+                
+            })();
+        </script>
+    </body>
 </html>

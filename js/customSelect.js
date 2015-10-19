@@ -138,6 +138,11 @@
 					});
 					focusedIndex = -1;
 					inputElement.focus();
+
+                    // If filter is not async, perform search in case model changed
+                    if (!options.async) {
+                        getMatches('');
+                    }
 				});
 
 				// Event handler for key press (when the user types a character while focus is on the anchor element)
