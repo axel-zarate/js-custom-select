@@ -68,7 +68,7 @@ $scope.growableOptions = {
 You need to use a function just as you would for a custom filter, with the difference that, given the asynchronous nature of AJAX, such function must return a promise. As soon as the promise is resolved, the new items (if any) are displayed inside the list.
 
 ```HTML
-<div custom-select="a for a in searchAsync($searchTerm)" ng-model="custom2">
+<div custom-select="a for a in searchAsync($searchTerm)" custom-select-options="{ 'async': true }" ng-model="custom2">
 </div>
 ```
 
@@ -78,6 +78,8 @@ $scope.searchAsync = function (term) {
 	return $http.get(url); // This server call must return an array of objects
 };
 ```
+
+**Note**: It is important that you set the `async` option to `true` to disable eager searching (and reduce the number of server calls).
 
 ### Custom item template
 
@@ -113,7 +115,8 @@ emptySearchResultText | String | Message to display in the dropdown when the sea
 addText | String | Text to display on the add button; additionally, `onAdd` callback function must be supplied. Default: `'Add'`.
 onAdd | Function | A callback function to execute when the Add button is pressed. Default: `undefined`.
 searchDelay | Integer | Time in milliseconds to wait until the filtering is performed. Default: `300` (0.3 seconds).
-onSelect | Function | Callback function called when the user selects an item from the dropdown.
+onSelect | Function | Callback function invoked when the user selects an item from the dropdown.
+async | Boolean | Indicates whether the search filter is asynchronous or not; setting this option to `true` will limit the number of times the search function is evaluated (it will only run when the user types something in the search box).
 
 ## Dependencies
 * jQuery
