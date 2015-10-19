@@ -106,6 +106,24 @@ $scope.people = [
 ];
 ```
 
+### Reacting to items being selected
+```HTML
+<div custom-select="g for g in nestedItemsLevel1 | filter: $searchTerm" custom-select-options="level1Options"
+ng-model="level1"></div>
+```
+```JS
+$scope.level1Options = {
+	onSelect: function (item) {
+		// We're simulation the population of the nested options
+		var items = [];
+		for (var i = 1; i <= 5; i++) {
+			items.push(item + ': ' + 'Nested ' + i);
+		}
+		$scope.nestedItemsLevel2 = items;
+	}
+};
+```
+
 ## Options
 Name | Type | Details
 ---- | ---- | -------
@@ -118,6 +136,19 @@ searchDelay | Integer | Time in milliseconds to wait until the filtering is perf
 onSelect | Function | Callback function invoked when the user selects an item from the dropdown.
 async | Boolean | Indicates whether the search filter is asynchronous or not; setting this option to `true` will limit the number of times the search function is evaluated (it will only run when the user types something in the search box).
 
+### Changing options globally
+The configuration options can be set per directive instance but also globally by means of `customSelectDefaults`. You can override the default options at some point in your application (usually the module's `run` callback or in a localization file):
+
+```JS
+var app = angular.module('myApp');
+app.run(['customSelectDefaults', function(customSelectDefaults) {
+	customSelectDefaults.displayText = 'Seleccionar...';
+	customSelectDefaults.emptyListText = 'No hay resultados';
+	customSelectDefaults.emptySearchResultText = 'Ningún resultado para "$0"';
+	customSelectDefaults.addText = 'Agregar';
+	customSelectDefaults.searchDelay = 500;
+}]);
+```
 ## Dependencies
 * jQuery
 * AngularJS
