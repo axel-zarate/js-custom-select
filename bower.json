@@ -5,6 +5,10 @@
   "authors": [
     "Tom Caflisch <tomcaflisch@gmail.com>"
   ],
+  "main": [
+    "js/customSelect.js",
+    "css/style.css"
+  ],
   "description": "A custom auto-complete select box for AngularJS",
   "keywords": [
     "angular",
