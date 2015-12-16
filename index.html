@@ -20,7 +20,7 @@
         <style>
             body {
                 margin-top: 20px;
-                margin-bottom: 50px;
+                margin-bottom: 150px;
             }
         </style>
     </head>
@@ -78,7 +78,7 @@
             <label>Level 1</label>
             <div custom-select="g for g in nestedItemsLevel1 | filter: $searchTerm" custom-select-options="level1Options" ng-model="level1"></div>
             <label>Level 2</label>
-            <div custom-select="g for g in nestedItemsLevel2 | filter: $searchTerm" ng-model="level2"></div>
+            <div custom-select="g for g in nestedItemsLevel2 | filter: $searchTerm" ng-model="level2" cs-depends-on="level1"></div>
         </div>
         <!-- basic scripts -->
 

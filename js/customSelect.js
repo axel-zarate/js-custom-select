@@ -77,7 +77,8 @@
 					valueName = match[3],
 					valueFn = $parse(match[2] ? match[1] : valueName),
 					values = match[4],
-					valuesFn = $parse(values);
+					valuesFn = $parse(values),
+					dependsOn = attrs.csDependsOn;
 
 				var options = getOptions(),
 					timeoutHandle,
@@ -144,6 +145,15 @@
                         getMatches('');
                     }
 				});
+				
+				if (dependsOn) {
+					scope.$watch(dependsOn, function (newVal, oldVal) {
+						if (newVal !== oldVal) {
+							childScope.matches = [];
+							childScope.select(undefined);
+						}
+					});
+				}
 
 				// Event handler for key press (when the user types a character while focus is on the anchor element)
 				anchorElement.on('keypress', function (event) {
