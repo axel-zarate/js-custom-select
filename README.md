@@ -136,6 +136,11 @@ searchDelay | Integer | Time in milliseconds to wait until the filtering is perf
 onSelect | Function | Callback function invoked when the user selects an item from the dropdown.
 async | Boolean | Indicates whether the search filter is asynchronous or not; setting this option to `true` will limit the number of times the search function is evaluated (it will only run when the user types something in the search box).
 
+## Additional attributes
+Name | Details
+---- | -------
+cs-depends-on | Used to specify a scope variable to listen for changes. When a change is detected, the selected value and matches in the directive (if any) are reset. Useful for cascading select elements (like country/state/city) or any other scenario where you need to force item and/or filter evaluation.
+
 ### Changing options globally
 The configuration options can be set per directive instance but also globally by means of `customSelectDefaults`. You can override the default options at some point in your application (usually the module's `run` callback or in a localization file):
 
