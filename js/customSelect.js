@@ -51,7 +51,7 @@
 	});
 
 	module.directive('customSelect', ['$parse', '$compile', '$timeout', '$q', 'customSelectDefaults', function ($parse, $compile, $timeout, $q, baseOptions) {
-		var CS_OPTIONS_REGEXP = /^\s*(.*?)(?:\s+as\s+(.*?))?\s+for\s+(?:([\$\w][\$\w\d]*))\s+in\s+(.*)$/;
+		var CS_OPTIONS_REGEXP = /^\s*(.*?)(?:\s+as\s+(.*?))?\s+for\s+(?:([\$\w][\$\w\d]*))\s+in\s+([\s\S]+?)(?:\s+track\s+by\s+([\s\S]+?))?$/;
 
 		return {
 			restrict: 'A',
@@ -66,7 +66,7 @@
 
 				if (!match) {
 					throw new Error("Expected expression in form of " +
-						"'_select_ (as _label_)? for _value_ in _collection_'" +
+						"'_select_ (as _label_)? for _value_ in _collection_[ track by _id_]'" +
 						" but got '" + customSelect + "'.");
 				}
 
@@ -78,6 +78,8 @@
 					valueFn = $parse(match[2] ? match[1] : valueName),
 					values = match[4],
 					valuesFn = $parse(values),
+					track = match[5],
+					trackByExpr = track ? " track by " + track : "",
 					dependsOn = attrs.csDependsOn;
 
 				var options = getOptions(),
@@ -98,7 +100,7 @@
 							'<input class="' + attrs.selectClass + '" type="text" autocomplete="off" ng-model="searchTerm" />' +
 						'</div>' +
 						'<ul role="menu">' +
-							'<li role="presentation" ng-repeat="' + valueName + ' in matches">' +
+							'<li role="presentation" ng-repeat="' + valueName + ' in matches' + trackByExpr + '">' +
 								'<a role="menuitem" tabindex="-1" href ng-click="select(' + valueName + ')">' +
 									itemTemplate +
 								'</a>' +
@@ -136,7 +138,9 @@
 					}
 					childScope.$apply(function () {
 						lastSearch = '';
+						childScope.searchTerm = '';
 					});
+					
 					focusedIndex = -1;
 					inputElement.focus();
 

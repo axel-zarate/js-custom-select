@@ -35,7 +35,7 @@
             <button type="button" class="btn" ng-click="setToMango()">Set to mango</button>
             <h2>Complex objects</h2>
             <p>Selected state: {{ state }}</p>
-            <div custom-select="s.id as s.name for s in states | filter: { name: $searchTerm }" ng-model="state"></div>
+            <div custom-select="s.id as s.name for s in states | filter: { name: $searchTerm } track by s.id" ng-model="state"></div>
             <button type="button" class="btn" ng-click="reset()">Reset</button>
             
             <h2>Custom options</h2>
