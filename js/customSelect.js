@@ -99,6 +99,9 @@
 						'<div stop-propagation="click" class="custom-select-search">' +
 							'<input class="' + attrs.selectClass + '" type="text" autocomplete="off" ng-model="searchTerm" />' +
 						'</div>' +
+						'<div stop-propagation="click" class="custom-select-search">' +
+							'<input class="' + attrs.selectClass + '" type="text" autocomplete="off" ng-model="searchTerm" />' +
+						'</div>' +
 						'<ul role="menu">' +
 							'<li role="presentation" ng-repeat="' + valueName + ' in matches' + trackByExpr + '">' +
 								'<a role="menuitem" tabindex="-1" href ng-click="select(' + valueName + ')">' +
