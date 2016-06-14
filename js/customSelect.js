@@ -1,4 +1,4 @@
-﻿(function (angular, undefined) {
+(function (angular, undefined) {
 	'use strict';
 
 	// TODO: Move to polyfill?
@@ -91,7 +91,7 @@
 				var itemTemplate = elem.html().trim() || '{{' + (match[2] || match[1]) + '}}',
 
 					dropdownTemplate =
-					'<a class="dropdown-toggle" data-toggle="dropdown" href ng-class="{ disabled: disabled }">' +
+                        '<a class="dropdown-toggle form-control" data-toggle="dropdown" role="button"  href ng-class="{ disabled: disabled }">' +
 						'<span>{{displayText}}</span>' +
 						'<b></b>' +
 					'</a>' +
@@ -100,6 +100,9 @@
 							'<input class="' + attrs.selectClass + '" type="text" autocomplete="off" ng-model="searchTerm" />' +
 						'</div>' +
 						'<ul role="menu">' +
+                            '<li role="presentation">' +
+                                '<a role="menuitem" tabindex="-1" href ng-click="select(\'\')">&nbsp;</a>' +
+                            '</li>' +
 							'<li role="presentation" ng-repeat="' + valueName + ' in matches' + trackByExpr + '">' +
 								'<a role="menuitem" tabindex="-1" href ng-click="select(' + valueName + ')">' +
 									itemTemplate +
@@ -116,7 +119,7 @@
 							(typeof options.onAdd === "function" ?
 							'<button type="button" class="btn btn-primary btn-block add-button" ng-click="add()">{{addText}}</button>' : '') +
 						'</div>' +
-					'</div>';
+					'</div>' ;
 
 				// Clear element contents
 				elem.empty();
