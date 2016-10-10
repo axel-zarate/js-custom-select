@@ -347,7 +347,7 @@
 					};
 
 					childScope.add = function () {
-						$q.when(options.onAdd(), function (item) {
+						$q.when(options.onAdd(childScope.searchTerm), function (item) {
 							if (!item) return;
 
 							var locals = {};

@@ -173,3 +173,6 @@
 	border-radius: 0;
 	background-image: none;
 }
+.custom-select > .dropdown-menu:before {
+	border: 0;
+}

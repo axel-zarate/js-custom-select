@@ -183,8 +183,8 @@
                     $scope.growableOptions = {
                         displayText: 'Select or add a new item...',
                         addText: 'Add new item',
-                        onAdd: function () {
-                            var newItem = 'Item ' + ($scope.growable.length + 1);
+                        onAdd: function (text) {
+                            var newItem = 'Item ' + text;
                             $scope.growable.push(newItem);
                             return newItem;
                         }
