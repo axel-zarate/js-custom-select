@@ -92,7 +92,7 @@
 }
 .custom-select > .dropdown-menu {
 	margin-top: 0;
-	border-color: #aaa;
+	border: 1px solid #aaa;
 	border-top: 0;
 	padding-bottom: 0;
 	width: auto;

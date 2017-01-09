@@ -52,6 +52,7 @@
 
 	module.directive('customSelect', ['$parse', '$compile', '$timeout', '$q', 'customSelectDefaults', function ($parse, $compile, $timeout, $q, baseOptions) {
 		var CS_OPTIONS_REGEXP = /^\s*(.*?)(?:\s+as\s+(.*?))?\s+for\s+(?:([\$\w][\$\w\d]*))\s+in\s+([\s\S]+?)(?:\s+track\s+by\s+([\s\S]+?))?$/;
+		var VALUES_REGEXP = /^.+?(?=\||$)/;
 
 		return {
 			restrict: 'A',
@@ -144,10 +145,10 @@
 					focusedIndex = -1;
 					inputElement.focus();
 
-                    // If filter is not async, perform search in case model changed
-                    if (!options.async) {
-                        getMatches('');
-                    }
+					// If filter is not async, perform search in case model changed
+					//if (!options.async) {
+					//	getMatches();
+					//}
 				});
 				
 				if (dependsOn) {
@@ -241,6 +242,19 @@
 					(term && options.searchDelay) || 0);
 				});
 
+				if (!options.async) {
+					var m = values.match(VALUES_REGEXP);
+					if (m) {
+						var originalValues = m[0];
+						scope.$watchCollection(originalValues, function (value) {
+							if (angular.isArray(value)) {
+
+								getMatches();
+							}
+						});
+					}
+				}
+
 				// Support for autofocus
 				if ('autofocus' in attrs) {
 					anchorElement.focus();
@@ -294,6 +308,9 @@
 				}
 
 				function getMatches(searchTerm) {
+					if (searchTerm === undefined) {
+						searchTerm = (childScope.searchTerm || "").trim();
+					}
 					var locals = { $searchTerm: searchTerm }
 					$q.when(valuesFn(scope, locals)).then(function (matches) {
 						if (!matches) return;
