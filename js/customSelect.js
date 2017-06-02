@@ -183,8 +183,8 @@
 						case 40: // Down
 							focusFirst();
 							break;
-						case 9:// Tab
-							anchorElement.dropdown('toggle');
+						case 9: // Tab
+							selectFromInput();
 							break;
 					}
 				});
