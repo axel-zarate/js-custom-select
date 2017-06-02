@@ -177,14 +177,13 @@
 						case 27: // Esc
 							anchorElement.dropdown('toggle');
 							break;
+						case 9: // Tab
 						case 13: // Enter
 							selectFromInput();
+							childScope.searchTerm = undefined;
 							break;
 						case 40: // Down
 							focusFirst();
-							break;
-						case 9:// Tab
-							anchorElement.dropdown('toggle');
 							break;
 					}
 				});
