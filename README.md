@@ -68,7 +68,7 @@ $scope.growableOptions = {
 You need to use a function just as you would for a custom filter, with the difference that, given the asynchronous nature of AJAX, such function must return a promise. As soon as the promise is resolved, the new items (if any) are displayed inside the list.
 
 ```HTML
-<div custom-select="a for a in searchAsync($searchTerm)" ng-model="custom2">
+<div custom-select="a for a in searchAsync($searchTerm)" custom-select-options="{ 'async': true }" ng-model="custom2">
 </div>
 ```
 
@@ -78,6 +78,8 @@ $scope.searchAsync = function (term) {
 	return $http.get(url); // This server call must return an array of objects
 };
 ```
+
+**Note**: It is important that you set the `async` option to `true` to disable eager searching (and reduce the number of server calls).
 
 ### Custom item template
 
@@ -104,6 +106,24 @@ $scope.people = [
 ];
 ```
 
+### Reacting to items being selected
+```HTML
+<div custom-select="g for g in nestedItemsLevel1 | filter: $searchTerm" custom-select-options="level1Options"
+ng-model="level1"></div>
+```
+```JS
+$scope.level1Options = {
+	onSelect: function (item) {
+		// We're simulation the population of the nested options
+		var items = [];
+		for (var i = 1; i <= 5; i++) {
+			items.push(item + ': ' + 'Nested ' + i);
+		}
+		$scope.nestedItemsLevel2 = items;
+	}
+};
+```
+
 ## Options
 Name | Type | Details
 ---- | ---- | -------
@@ -113,8 +133,27 @@ emptySearchResultText | String | Message to display in the dropdown when the sea
 addText | String | Text to display on the add button; additionally, `onAdd` callback function must be supplied. Default: `'Add'`.
 onAdd | Function | A callback function to execute when the Add button is pressed. Default: `undefined`.
 searchDelay | Integer | Time in milliseconds to wait until the filtering is performed. Default: `300` (0.3 seconds).
-onSelect | Function | Callback function called when the user selects an item from the dropdown.
+onSelect | Function | Callback function invoked when the user selects an item from the dropdown.
+async | Boolean | Indicates whether the search filter is asynchronous or not; setting this option to `true` will limit the number of times the search function is evaluated (it will only run when the user types something in the search box).
 
+## Additional attributes
+Name | Details
+---- | -------
+cs-depends-on | Used to specify a scope variable to listen for changes. When a change is detected, the selected value and matches in the directive (if any) are reset. Useful for cascading select elements (like country/state/city) or any other scenario where you need to force item and/or filter evaluation.
+
+### Changing options globally
+The configuration options can be set per directive instance but also globally by means of `customSelectDefaults`. You can override the default options at some point in your application (usually the module's `run` callback or in a localization file):
+
+```JS
+var app = angular.module('myApp');
+app.run(['customSelectDefaults', function(customSelectDefaults) {
+	customSelectDefaults.displayText = 'Seleccionar...';
+	customSelectDefaults.emptyListText = 'No hay resultados';
+	customSelectDefaults.emptySearchResultText = 'Ningún resultado para "$0"';
+	customSelectDefaults.addText = 'Agregar';
+	customSelectDefaults.searchDelay = 500;
+}]);
+```
 ## Dependencies
 * jQuery
 * AngularJS

@@ -92,7 +92,7 @@
 }
 .custom-select > .dropdown-menu {
 	margin-top: 0;
-	border-color: #aaa;
+	border: 1px solid #aaa;
 	border-top: 0;
 	padding-bottom: 0;
 	width: auto;
@@ -172,4 +172,7 @@
 .custom-select > .dropdown-menu > .custom-select-action > button {
 	border-radius: 0;
 	background-image: none;
+}
+.custom-select > .dropdown-menu:before {
+	border: 0;
 }
