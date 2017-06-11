@@ -169,20 +169,19 @@
 
 				// Event handler for Esc, Enter, Tab and Down keys on input search
 				inputElement.on('keydown', function (event) {
-					if (!/(13|27|40|^9$)/.test(event.keyCode)) return;
-					event.preventDefault();
-					event.stopPropagation();
-
 					switch (event.keyCode) {
 						case 27: // Esc
+							event.stopPropagation();
 							anchorElement.dropdown('toggle');
 							break;
-						case 9: // Tab
 						case 13: // Enter
+							event.stopPropagation();
+						case 9: // Tab
 							selectFromInput();
 							childScope.searchTerm = undefined;
 							break;
 						case 40: // Down
+							event.stopPropagation();
 							focusFirst();
 							break;
 					}
